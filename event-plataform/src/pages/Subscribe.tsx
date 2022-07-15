@@ -1,14 +1,38 @@
+import { gql, useMutation } from "@apollo/client";
 import { stringifyForDisplay } from "@apollo/client/utilities";
 import { useState, FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { Logo } from "../components/Logo";
 
+const CREATE_SUBSCRIBER_MUTATION = gql`
+  mutation CreateSubscriber($name: String!, $email: String!) {
+    createSubscriber(data: { name: $name, email: $email }) {
+      id
+    }
+  }
+`;
+
 export function Subscribe() {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
+  const [createSubscriber, { loading }] = useMutation(
+    CREATE_SUBSCRIBER_MUTATION
+  );
 
   function handleSubscribe(event: FormEvent) {
     event.preventDefault();
 
+    createSubscriber({
+      variables: {
+        name,
+        email,
+      },
+    });
+
+    navigate("/event");
     // console.log(name, email);
   }
 
@@ -51,7 +75,11 @@ export function Subscribe() {
               onChange={(event) => setEmail(event.target.value)}
             />
 
-            <button className="mt-4 bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700 transition-colors">
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 bg-green-500 uppercase py-4 rounded font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+            >
               Garantir minha vaga
             </button>
           </form>
